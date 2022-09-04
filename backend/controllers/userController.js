@@ -61,13 +61,12 @@ const registerUser = asyncHandler(async (req, res) => {
 
 const loginUser = asyncHandler(async (req, res) => {
   console.log("here ", req.body);
+
   const { email, password } = req.body;
   const user = await User.findOne({ email }).lean();
 
-
   if (user && (await bcrypt.compare(password, user.password))) {
-    console.log("inside if");
-    console.log("user", user);
+    // the email, password combination is successful
     res.send({
       _id: user._id,
       username: user.username,

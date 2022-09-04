@@ -10,8 +10,7 @@ import {
   Button,
   useDisclosure,
   IconButton,
-  Text,
-  Image,
+  Text
 } from "@chakra-ui/react";
 
 const ProfileModal = ({ user, children }) => {

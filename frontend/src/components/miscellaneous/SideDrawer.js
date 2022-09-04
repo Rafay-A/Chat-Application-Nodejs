@@ -75,7 +75,10 @@ function SideDrawer() {
         },
       };
 
-      const { data } = await axios.get(`http://localhost:3000/api/user?search=${search}`, config);
+      const { data } = await axios.get(
+        `http://localhost:3000/api/user?search=${search}`,
+        config
+      );
 
       setLoading(false);
       setSearchResult(data);
@@ -102,7 +105,11 @@ function SideDrawer() {
           Authorization: `Bearer ${user.token}`,
         },
       };
-      const { data } = await axios.post(`http://localhost:3000/api/chat`, { userId }, config);
+      const { data } = await axios.post(
+        `http://localhost:3000/api/chat`,
+        { userId },
+        config
+      );
 
       if (!chats.find((c) => c._id === data._id)) setChats([data, ...chats]);
       setSelectedChat(data);
@@ -140,7 +147,7 @@ function SideDrawer() {
           </Button>
         </Tooltip>
         <Text fontSize="2xl" fontFamily="Work sans">
-          Talk-A-Tive
+          Techverx
         </Text>
         <div>
           <Menu>
@@ -166,11 +173,7 @@ function SideDrawer() {
           </Menu>
           <Menu>
             <MenuButton as={Button} bg="white" rightIcon={<ChevronDownIcon />}>
-              <Avatar
-                size="sm"
-                cursor="pointer"
-                name={user.username}
-              />
+              <Avatar size="sm" cursor="pointer" name={user.username} />
             </MenuButton>
             <MenuList>
               <ProfileModal user={user}>

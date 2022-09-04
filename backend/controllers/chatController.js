@@ -25,7 +25,7 @@ const accessChat = asyncHandler(async (req, res) => {
 
   isChat = await User.populate(isChat, {
     path: "latestMessage.sender",
-    select: "name pic email",
+    select: "username email",
   });
 
   if (isChat.length > 0) {
@@ -63,7 +63,7 @@ const fetchChats = asyncHandler(async (req, res) => {
       .then(async (results) => {
         results = await User.populate(results, {
           path: "latestMessage.sender",
-          select: "name pic email",
+          select: "username email",
         });
         res.status(200).send(results);
       });
@@ -110,7 +110,6 @@ const createGroupChat = asyncHandler(async (req, res) => {
   }
 });
 
-
 // @desc    Add user to Group / Leave
 // @route   PUT /api/chat/groupadd
 // @access  Protected
@@ -143,5 +142,5 @@ module.exports = {
   accessChat,
   fetchChats,
   createGroupChat,
-  addToGroup
+  addToGroup,
 };

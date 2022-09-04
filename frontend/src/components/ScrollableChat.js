@@ -13,13 +13,17 @@ const ScrollableChat = ({ messages }) => {
   const { user } = ChatState();
 
   return (
-    <div>
+    <>
       {messages &&
         messages.map((m, i) => (
           <div style={{ display: "flex" }} key={m._id}>
             {(isSameSender(messages, m, i, user._id) ||
               isLastMessage(messages, i, user._id)) && (
-              <Tooltip label={m.sender.username} placement="bottom-start" hasArrow>
+              <Tooltip
+                label={m.sender.username}
+                placement="bottom-start"
+                hasArrow
+              >
                 <Avatar
                   mt="7px"
                   mr={1}
@@ -40,13 +44,13 @@ const ScrollableChat = ({ messages }) => {
                 borderRadius: "20px",
                 padding: "5px 15px",
                 maxWidth: "75%",
-              }}
+              }}s
             >
               {m.content}
             </span>
           </div>
         ))}
-    </div>
+    </>
   );
 };
 
