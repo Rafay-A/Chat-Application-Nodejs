@@ -116,8 +116,7 @@ const createGroupChat = asyncHandler(async (req, res) => {
 const addToGroup = asyncHandler(async (req, res) => {
   const { chatId, userId } = req.body;
 
-  // check if the requester is admin
-
+  // Check if User is Admin
   const added = await Chat.findByIdAndUpdate(
     chatId,
     {

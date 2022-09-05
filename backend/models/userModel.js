@@ -11,7 +11,7 @@ const userSchema = mongoose.Schema(
       default: false,
     },
   },
-  { collection: "users" }, { timestaps: true }
+  { collection: "users" }
 );
 
 module.exports = mongoose.model("User", userSchema);
