@@ -16,9 +16,9 @@ import {
 } from "@chakra-ui/react";
 import axios from "axios";
 import { useState } from "react";
-import { ChatState } from "../../Context/ChatProvider";
-import UserBadgeItem from "../userAvatar/UserBadgeItem";
-import UserListItem from "../userAvatar/UserListItem";
+import { ChatState } from "../../context/chatProvider";
+import UserBadgeItem from "../userAvatar/userBadgeItem";
+import UserListItem from "../userAvatar/userListItem";
 
 const UpdateGroupChatModal = ({ fetchMessages, fetchAgain, setFetchAgain }) => {
   const { isOpen, onOpen, onClose } = useDisclosure();
@@ -44,7 +44,7 @@ const UpdateGroupChatModal = ({ fetchMessages, fetchAgain, setFetchAgain }) => {
         },
       };
       const { data } = await axios.get(
-        `http://localhost:3000/api/user?search=${search}`,
+        `${process.env.REACT_APP_BASE_URL}/api/user?search=${search}`,
         config
       );
       console.log(data);
@@ -94,7 +94,7 @@ const UpdateGroupChatModal = ({ fetchMessages, fetchAgain, setFetchAgain }) => {
         },
       };
       const { data } = await axios.put(
-        `http://localhost:3000/api/chat/groupadd`,
+        `${process.env.REACT_APP_BASE_URL}/api/chat/groupadd`,
         {
           chatId: selectedChat._id,
           userId: user1._id,

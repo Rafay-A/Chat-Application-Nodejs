@@ -2,92 +2,78 @@ import { Button } from "@chakra-ui/button";
 import { FormControl, FormLabel } from "@chakra-ui/form-control";
 import { Input, InputGroup, InputRightElement } from "@chakra-ui/input";
 import { VStack } from "@chakra-ui/layout";
-import { useToast } from "@chakra-ui/toast";
-import axios from "axios";
 import { useState } from "react";
-import { useHistory } from "react-router";
+import axios from "axios";
+import { useToast } from "@chakra-ui/react";
+import { useHistory } from "react-router-dom";
 
-const Signup = () => {
+const Login = () => {
   const [show, setShow] = useState(false);
   const handleClick = () => setShow(!show);
   const toast = useToast();
+  const [email, setEmail] = useState();
+  const [password, setPassword] = useState();
+  const [loading, setLoading] = useState(false);
+
   const history = useHistory();
 
-  const [username, setUserName] = useState();
-  const [email, setEmail] = useState();
-  const [confirmpassword, setConfirmpassword] = useState();
-  const [password, setPassword] = useState();
-
   const submitHandler = async () => {
-  
-    if (!username || !email || !password || !confirmpassword) {
+    setLoading(true);
+    if (!email || !password) {
       toast({
-        title: "Please Fill all the Feilds",
+        title: "Please Enter Email and Password",
         status: "warning",
         duration: 5000,
         isClosable: true,
         position: "bottom",
       });
+      setLoading(false);
       return;
     }
-    if (password !== confirmpassword) {
-      toast({
-        title: "Passwords Do Not Match",
-        status: "warning",
-        duration: 5000,
-        isClosable: true,
-        position: "bottom",
-      });
-      return;
-    }
+
     try {
       const config = {
         headers: {
           "Content-type": "application/json",
         },
       };
+
       const { data } = await axios.post(
-        "http://localhost:3000/api/user",
-        {
-          username,
-          email,
-          password,
-        },
+        `${process.env.REACT_APP_BASE_URL}/api/user/login`,
+        { email, password },
         config
       );
-      console.log(data);
+
+      // console.log(JSON.stringify(data));
       toast({
-        title: "Registration Successful",
+        title: "Login Successful",
         status: "success",
         duration: 5000,
         isClosable: true,
         position: "bottom",
       });
-      history.push("/");
+      localStorage.setItem("userInfo", JSON.stringify(data));
+      setLoading(false);
+      history.push("/chats");
     } catch (error) {
       toast({
-        title: "Error Occured!",
+        title: "Wrong Email or Password!",
         description: error.response.data.message,
         status: "error",
         duration: 5000,
         isClosable: true,
         position: "bottom",
       });
+      setLoading(false);
     }
   };
 
   return (
-    <VStack spacing="5px">
-      <FormControl id="first-name" isRequired>
-        <FormLabel>Name</FormLabel>
-        <Input
-          placeholder="Enter Your Name"
-          onChange={(e) => setUserName(e.target.value)}
-        />
-      </FormControl>
+    <VStack spacing="10px">
       <FormControl id="email" isRequired>
         <FormLabel>Email Address</FormLabel>
         <Input
+          value={email}
           type="email"
           placeholder="Enter Your Email Address"
           onChange={(e) => setEmail(e.target.value)}
@@ -97,24 +83,10 @@ const Signup = () => {
         <FormLabel>Password</FormLabel>
         <InputGroup size="md">
           <Input
-            type={show ? "text" : "password"}
-            placeholder="Enter Password"
+            value={password}
             onChange={(e) => setPassword(e.target.value)}
-          />
-          <InputRightElement width="4.5rem">
-            <Button h="1.75rem" size="sm" onClick={handleClick}>
-              {show ? "Hide" : "Show"}
-            </Button>
-          </InputRightElement>
-        </InputGroup>
-      </FormControl>
-      <FormControl id="password" isRequired>
-        <FormLabel>Confirm Password</FormLabel>
-        <InputGroup size="md">
-          <Input
             type={show ? "text" : "password"}
-            placeholder="Confirm password"
-            onChange={(e) => setConfirmpassword(e.target.value)}
+            placeholder="Enter password"
           />
           <InputRightElement width="4.5rem">
             <Button h="1.75rem" size="sm" onClick={handleClick}>
@@ -128,11 +100,12 @@ const Signup = () => {
         width="100%"
         style={{ marginTop: 15 }}
         onClick={submitHandler}
+        isLoading={loading}
       >
-        Sign Up
+        Login
       </Button>
     </VStack>
   );
 };
 
-export default Signup;
+export default Login;

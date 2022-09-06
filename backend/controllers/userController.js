@@ -3,20 +3,8 @@ const User = require("../models/userModel");
 const generateToken = require("../config/generateToken");
 const bcrypt = require("bcrypt");
 
-const allUsers = asyncHandler(async (req, res) => {
-  const keyword = req.query.search
-    ? {
-        $or: [
-          { username: { $regex: req.query.search, $options: "i" } },
-          { email: { $regex: req.query.search, $options: "i" } },
-        ],
-      }
-    : {};
-
-  const users = await User.find(keyword).find({ _id: { $ne: req.user._id } });
-  res.send(users);
-});
-
+//@description     Resgister a new user
+//@route           POST /api/user/register-user
 const registerUser = asyncHandler(async (req, res) => {
   const { username, email, password: plainTextPassword } = req.body;
 
@@ -48,6 +36,7 @@ const registerUser = asyncHandler(async (req, res) => {
       password,
     });
     console.log("User created successfully: ", response);
+    
   } catch (error) {
     if (error.code === 11000) {
       // duplicate key
@@ -59,14 +48,15 @@ const registerUser = asyncHandler(async (req, res) => {
   res.json({ status: "ok" });
 });
 
+//@description     Auth User and Get Token
+//@route           POST /api/user/login
 const loginUser = asyncHandler(async (req, res) => {
-  console.log("here ", req.body);
 
   const { email, password } = req.body;
   const user = await User.findOne({ email }).lean();
 
   if (user && (await bcrypt.compare(password, user.password))) {
-    // the email, password combination is successful
+    //the email, password combination is successful
     res.send({
       _id: user._id,
       username: user.username,
@@ -79,4 +69,21 @@ const loginUser = asyncHandler(async (req, res) => {
   }
 });
 
-module.exports = { registerUser, loginUser, allUsers };
+//@description     Get User Profile
+//@route           GET /api/user/login/user?search={search}
+//@access          Protected
+const searchUsers = asyncHandler(async (req, res) => {
+  const keyword = req.query.search
+    ? {
+        $or: [
+          { username: { $regex: req.query.search, $options: "i" } },
+          { email: { $regex: req.query.search, $options: "i" } },
+        ],
+      }
+    : {};
+
+  const users = await User.find(keyword).find({ _id: { $ne: req.user._id } });
+  res.send(users);
+});
+
+module.exports = { registerUser, loginUser, searchUsers };

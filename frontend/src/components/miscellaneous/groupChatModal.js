@@ -15,9 +15,10 @@ import {
 } from "@chakra-ui/react";
 import axios from "axios";
 import { useState } from "react";
-import { ChatState } from "../../Context/ChatProvider";
-import UserBadgeItem from "../userAvatar/UserBadgeItem";
-import UserListItem from "../userAvatar/UserListItem";
+import { ChatState } from "../../context/chatProvider";
+import UserBadgeItem from "../userAvatar/userBadgeItem";
+import UserListItem from "../userAvatar/userListItem";
+import ChatLoading from "../chatLoading";
 
 const GroupChatModal = ({ children }) => {
   const { isOpen, onOpen, onClose } = useDisclosure();
@@ -59,7 +60,7 @@ const GroupChatModal = ({ children }) => {
         },
       };
       const { data } = await axios.get(
-        `http://localhost:3000/api/user?search=${search}`,
+        `${process.env.REACT_APP_BASE_URL}/api/user?search=${search}`,
         config
       );
       console.log(data);
@@ -100,7 +101,7 @@ const GroupChatModal = ({ children }) => {
         },
       };
       const { data } = await axios.post(
-        `http://localhost:3000/api/chat/group`,
+        `${process.env.REACT_APP_BASE_URL}/api/chat/group`,
         {
           name: groupChatName,
           users: JSON.stringify(selectedUsers.map((u) => u._id)),
@@ -169,8 +170,7 @@ const GroupChatModal = ({ children }) => {
               ))}
             </Box>
             {loading ? (
-              // <ChatLoading />
-              <div>Loading...</div>
+              <><ChatLoading /><div>Loading...</div></>
             ) : (
               searchResult
                 ?.slice(0, 4)

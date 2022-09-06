@@ -13,6 +13,7 @@ const accessChat = asyncHandler(async (req, res) => {
     return res.sendStatus(400);
   }
 
+  //
   var isChat = await Chat.find({
     isGroupChat: false,
     $and: [
@@ -28,6 +29,7 @@ const accessChat = asyncHandler(async (req, res) => {
     select: "username email",
   });
 
+  //if chat already exists
   if (isChat.length > 0) {
     res.send(isChat[0]);
   } else {
@@ -37,6 +39,7 @@ const accessChat = asyncHandler(async (req, res) => {
       users: [req.user._id, userId],
     };
 
+    //create new chat
     try {
       const createdChat = await Chat.create(chatData);
       const FullChat = await Chat.findOne({ _id: createdChat._id }).populate(
@@ -59,7 +62,6 @@ const fetchChats = asyncHandler(async (req, res) => {
     Chat.find({ users: { $elemMatch: { $eq: req.user._id } } })
       .populate("users", "-password")
       .populate("latestMessage")
-      .sort({ updatedAt: -1 })
       .then(async (results) => {
         results = await User.populate(results, {
           path: "latestMessage.sender",
@@ -110,36 +112,9 @@ const createGroupChat = asyncHandler(async (req, res) => {
   }
 });
 
-// @desc    Add user to Group / Leave
-// @route   PUT /api/chat/groupadd
-// @access  Protected
-const addToGroup = asyncHandler(async (req, res) => {
-  const { chatId, userId } = req.body;
-
-  // Check if User is Admin
-  const added = await Chat.findByIdAndUpdate(
-    chatId,
-    {
-      $push: { users: userId },
-    },
-    {
-      new: true,
-    }
-  )
-    .populate("users", "-password")
-    .populate("groupAdmin", "-password");
-
-  if (!added) {
-    res.status(404);
-    throw new Error("Chat Not Found");
-  } else {
-    res.json(added);
-  }
-});
 
 module.exports = {
   accessChat,
   fetchChats,
   createGroupChat,
-  addToGroup,
 };

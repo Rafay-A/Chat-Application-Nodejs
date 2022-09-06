@@ -3,17 +3,18 @@ import { Input } from "@chakra-ui/input";
 import { Box, Text } from "@chakra-ui/layout";
 import "./styles.css";
 import { IconButton, Spinner, useToast } from "@chakra-ui/react";
-import { getSender, getSenderFull } from "../config/ChatLogics";
+import { getSender, getSenderFull } from "../config/chatLogics";
 import { useEffect, useState } from "react";
 import axios from "axios";
 import { ArrowBackIcon } from "@chakra-ui/icons";
-import ProfileModal from "./miscellaneous/ProfileModal";
-import ScrollableChat from "./ScrollableChat";
+import ProfileModal from "./miscellaneous/profileModal";
+import ScrollableChat from "./scrollableChat";
 import animationData from "../animations/typing.json";
 import io from "socket.io-client";
-import UpdateGroupChatModal from "./miscellaneous/UpdateGroupChatModal";
-import { ChatState } from "../Context/ChatProvider";
-const ENDPOINT = "http://localhost:3000";
+import UpdateGroupChatModal from "./miscellaneous/updateGroupChatModal";
+import { ChatState } from "../context/chatProvider";
+const ENDPOINT = process.env.REACT_APP_BASE_URL;
+
 var socket, selectedChatCompare;
 
 const SingleChat = ({ fetchAgain, setFetchAgain }) => {
@@ -49,13 +50,14 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
       setLoading(true);
 
       const { data } = await axios.get(
-        `http://localhost:3000/api/message/${selectedChat._id}`,
+        `${process.env.REACT_APP_BASE_URL}/api/message/${selectedChat._id}`,
         config
       );
       setMessages(data);
       setLoading(false);
 
-      socket.emit("join chat", selectedChat._id);
+      //join chatroom
+      socket.emit("join-chat", selectedChat._id);
     } catch (error) {
       toast({
         title: "Error Occured!",
@@ -68,9 +70,10 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
     }
   };
 
+  //send new message
   const sendMessage = async (event) => {
     if (event.key === "Enter" && newMessage) {
-      socket.emit("stop typing", selectedChat._id);
+      socket.emit("stop-typing", selectedChat._id);
       try {
         const config = {
           headers: {
@@ -80,14 +83,15 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
         };
         setNewMessage("");
         const { data } = await axios.post(
-          "http://localhost:3000/api/message",
+          `${process.env.REACT_APP_BASE_URL}/api/message`,
           {
             content: newMessage,
             chatId: selectedChat,
           },
           config
         );
-        socket.emit("new message", data);
+
+        socket.emit("new-message", data);
         setMessages([...messages, data]);
       } catch (error) {
         toast({
@@ -101,29 +105,34 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
       }
     }
   };
+
+  //connect to socket in backend
   useEffect(() => {
     socket = io(ENDPOINT);
     socket.emit("setup", user);
     socket.on("connected", () => setSocketConnected(true));
-    socket.on("typing", () => setIsTyping(true));
-    socket.on("stop typing", () => setIsTyping(false));
 
-    // eslint-disable-next-line
+    //extra functionality
+    socket.on("typing", () => setIsTyping(true));
+    socket.on("stop-typing", () => setIsTyping(false));
   }, []);
 
   useEffect(() => {
     fetchMessages();
 
     selectedChatCompare = selectedChat;
-    // eslint-disable-next-line
   }, [selectedChat]);
 
+  //check if user is currently in the chatroom
   useEffect(() => {
-    socket.on("message recieved", (newMessageRecieved) => {
+    socket.on("message-recieved", (newMessageRecieved) => {
+
+       //if chat is not selected or doesn't match current chat
       if (
-        !selectedChatCompare || // if chat is not selected or doesn't match current chat
+        !selectedChatCompare |
         selectedChatCompare._id !== newMessageRecieved.chat._id
       ) {
+        //extra functionality
         if (!notification.includes(newMessageRecieved)) {
           setNotification([newMessageRecieved, ...notification]);
           setFetchAgain(!fetchAgain);
@@ -134,6 +143,7 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
     });
   });
 
+  //extra functionality
   const typingHandler = (e) => {
     setNewMessage(e.target.value);
 
@@ -149,7 +159,7 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
       var timeNow = new Date().getTime();
       var timeDiff = timeNow - lastTypingTime;
       if (timeDiff >= timerLength && typing) {
-        socket.emit("stop typing", selectedChat._id);
+        socket.emit("stop-typing", selectedChat._id);
         setTyping(false);
       }
     }, timerLength);
@@ -228,10 +238,11 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
                 <div>
                   <div
                     options={defaultOptions}
-                    // height={50}
+                    //height={50}
                     width={70}
                     style={{ marginBottom: 15, marginLeft: 0 }}
                   />
+                  typing ...
                 </div>
               ) : (
                 <></>
@@ -247,7 +258,7 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
           </Box>
         </>
       ) : (
-        // to get socket.io on same page
+        //to get socket.io on same page
         <Box d="flex" alignItems="center" justifyContent="center" h="100%">
           <Text fontSize="3xl" pb={3} fontFamily="Work sans">
             Click on a user to start chatting

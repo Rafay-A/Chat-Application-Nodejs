@@ -23,12 +23,12 @@ import { useHistory } from "react-router-dom";
 import { useState } from "react";
 import axios from "axios";
 import { useToast } from "@chakra-ui/toast";
-import ChatLoading from "../ChatLoading";
+import ChatLoading from "../chatLoading";
 import { Spinner } from "@chakra-ui/spinner";
-import ProfileModal from "./ProfileModal";
-import { getSender } from "../../config/ChatLogics";
-import UserListItem from "../userAvatar/UserListItem";
-import { ChatState } from "../../Context/ChatProvider";
+import ProfileModal from "./profileModal";
+import { getSender } from "../../config/chatLogics";
+import UserListItem from "../userAvatar/userListItem";
+import { ChatState } from "../../context/chatProvider";
 
 function SideDrawer() {
   const [search, setSearch] = useState("");
@@ -76,7 +76,7 @@ function SideDrawer() {
       };
 
       const { data } = await axios.get(
-        `http://localhost:3000/api/user?search=${search}`,
+        `${process.env.REACT_APP_BASE_URL}/api/user?search=${search}`,
         config
       );
 
@@ -106,7 +106,7 @@ function SideDrawer() {
         },
       };
       const { data } = await axios.post(
-        `http://localhost:3000/api/chat`,
+        `${process.env.REACT_APP_BASE_URL}/api/chat`,
         { userId },
         config
       );
