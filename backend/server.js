@@ -20,9 +20,9 @@ app.use("/api/user", userRoutes);
 app.use("/api/chat", chatRoutes);
 app.use("/api/message", messageRoutes);
 
-const POST = process.env.PORT;
+const PORT = process.env.PORT;
 
-const server = app.listen(POST, () => {
+const server = app.listen(PORT, () => {
   console.log("Server up");
 });
 
