@@ -110,9 +110,9 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
   //connect to socket in backend
   useEffect(() => {
     socket = io(ENDPOINT);
-    socket.emit("setup", user);
     socket.on("connected", () => setSocketConnected(true));
-
+    socket.emit("setup", user);
+    
     //extra functionality
     socket.on("typing", () => setIsTyping(true));
     socket.on("stop-typing", () => setIsTyping(false));
@@ -129,11 +129,10 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
   //check if user is currently in the chatroom
   useEffect(() => {
     socket.on("message-recieved", (newMessageRecieved) => {
-
-       //if chat is not selected or doesn't match current chat
+      //if chat is not selected or doesn't match current chat
       if (
         !selectedChatCompare |
-        selectedChatCompare._id !== newMessageRecieved.chat._id
+        (selectedChatCompare._id !== newMessageRecieved.chat._id)
       ) {
         //extra functionality
         if (!notification.includes(newMessageRecieved)) {
@@ -261,7 +260,12 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
         </>
       ) : (
         //to get socket.io on same page
-        <Box display="flex" alignItems="center" justifyContent="center" h="100%">
+        <Box
+          display="flex"
+          alignItems="center"
+          justifyContent="center"
+          h="100%"
+        >
           <Text fontSize="3xl" pb={3} fontFamily="Work sans">
             Click on a user to start chatting
           </Text>
